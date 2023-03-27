@@ -45,8 +45,8 @@ func doSomethingElse(allocated *[]float64) {
 ```
 
 OneItemPool will not make the item available until we put it back.
-Simply follow the rule that after using Put(), you should not hold any reference to the item, 
-because it might be changed later.
+This will force to be more careful with sharing the allocated item.
+Here is how it works:
 
 ```go
 
@@ -89,9 +89,11 @@ func doSomethingElse(pool *OneItemPool[[]float64]) {
 	pool.Put(allocated)
 }
 
+As a general rule, after using Put(), you should not hold any reference to the item, 
+because it might be changed later.
+
+
 ```
-
-
 This is clearly more limited than sync.Pool, but if you need performance, it might be faster.
 Here is a (small and artificial) benchmark:
 
