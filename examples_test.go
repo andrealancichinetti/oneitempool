@@ -8,6 +8,18 @@ type ExampleStruct struct {
 }
 
 func ExampleOneItemPool() {
+
+	frenquentlyCalledFunction := func(floatsPool *OneItemPool[[]float64]) {
+		floats := floatsPool.Get()[:0]
+		// defer pool.Put(floats) would evaluate floats immediately, which we don't want.
+		defer func() {
+			floatsPool.Put(floats)
+		}()
+		for i := 0; i < 1000; i += 1 {
+			floats = append(floats, 0.1)
+		}
+	}
+
 	pool := New([]float64{})
 	frenquentlyCalledFunction(pool)
 	frenquentlyCalledFunction(pool)
@@ -19,18 +31,6 @@ func ExampleOneItemPool() {
 	pool.Put(floats)
 
 	// Output: cap(floats) >= 1000? true
-}
-
-func frenquentlyCalledFunction(pool *OneItemPool[[]float64]) {
-
-	floats := pool.Get()[:0]
-	// defer pool.Put(floats) would evaluate floats immediately, which we don't want.
-	defer func() {
-		pool.Put(floats)
-	}()
-	for i := 0; i < 1000; i += 1 {
-		floats = append(floats, 0.1)
-	}
 }
 
 // pools with several objects that we want to re-use

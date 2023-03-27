@@ -9,47 +9,84 @@ Say that you have a function that gets called many times and
 that requires some memory allocations.
 
 Instead of allocating the memory each time you call the function,
-you can use sync.Pool, right?
-Yes, but you get some overhead. Also, you might not want to
-lose the object if the GC runs.
+a standard solution might be to use sync.Pool.
 
-The alternative is to allocate memory
-before calling the function you want to optimise, and pass the allocated variable into the function.
-This works great, but it has two inconveniences (which sync.Pool does not have).
- 1. if you have a slice, you need to make sure to update it in the caller, or use a pointer
- 2. you end up with a shared mutable object, and you need to make sure you are not changing it in multiple places.
+A more performant alternative is to allocate memory
+before calling the function you want to optimise,
+and pass the allocated variable as a parameter to the function.
+This works great, but you might end up with a shared mutable object,
+and you need to make sure you are not changing it in multiple places.
 
-If you are not using concurrency and you only need to get one object and then put it back,
-this simple struct will make sure that your code will get access to the data only one at a time
-and will make updates convenient.
+Example:
 
 ```go
 
-pool := New([]float64{})
-frenquentlyCalledFunction(pool)
-frenquentlyCalledFunction(pool)
-frenquentlyCalledFunction(pool)
-frenquentlyCalledFunction(pool)
+allocated := &[]float64{}
+doSomething(allocated)
 
-floats := pool.Get()[:0]
-fmt.Printf("cap(floats) >= 1000? %v\n", cap(floats) >= 1000)
-pool.Put(floats)
+func doSomething(allocated *[]float64) {
 
-// Output: cap(floats) >= 1000? true
+	*allocated = append((*allocated)[:0], 0.1)
+	// you accidentally use allocated in another function.
+	doSomethingElse(allocated)
+	*allocated = append(*allocated, 0.1)
 
+	// now allocated is [10.0, 0.1]
+	// this is probably a bug, or at at least it's confusing.
 
-func frenquentlyCalledFunction(pool *OneItemPool[[]float64]) {
-
-	floats := pool.Get()[:0]
-	// defer pool.Put(floats) would evaluate floats immediately, which we don't want.
-	defer func() {
-		pool.Put(floats)
-	}()
-	for i := 0; i < 1000; i += 1 {
-		floats = append(floats, 0.1)
-	}
 }
 
+func doSomethingElse(allocated *[]float64) {
+	*allocated = append(*allocated[:0], 10.0)
+	// do something else
+}
+
+```
+
+OneItemPool will not make the item available until we put it back.
+Simply follow the rule that after using Put(), you should not hold any reference to the item, 
+because it might be changed later.
+
+```go
+
+allocated := New([]float64{})
+doSomething(allocated)
+
+func doSomething(pool *OneItemPool[[]float64]) {
+	allocated := pool.Get()[:0]
+	allocated = append(allocated[:0], 0.1)
+	// after using Put, we should not refer to allocated anymore.
+	pool.Put(allocated)
+}
+
+```
+
+Now allocated is protected from accidental changes: 
+
+```go
+
+
+allocated := New([]float64{})
+doSomething(allocated)
+
+func doSomething(pool *OneItemPool[[]float64]) {
+
+	allocated := pool.Get()[:0]
+
+	allocated = append(allocated[:0], 0.1)
+	// you accidentally use the pool in another function:
+	// it will panic.
+	doSomethingElse(pool)
+	allocated = append(allocated, 0.1)
+
+	pool.Put(allocated)
+}
+
+func doSomethingElse(pool *OneItemPool[[]float64]) {
+	allocated := pool.Get()[:0]
+	allocated = append(allocated, 0.1)
+	pool.Put(allocated)
+}
 
 ```
 
