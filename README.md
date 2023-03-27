@@ -45,7 +45,7 @@ func doSomethingElse(allocated *[]float64) {
 ```
 
 OneItemPool will not make the item available until we put it back.
-This will force to be more careful with sharing the allocated item.
+This will force you to be more careful with sharing the allocated item.
 Here is how it works:
 
 ```go
