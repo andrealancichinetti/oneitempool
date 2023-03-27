@@ -38,12 +38,6 @@ func ExamplePool() {
 	defer pool.someFloats.Put(floats)
 	fmt.Printf("saved allocations3 %v", cap3 == cap(floats))
 
-	//fmt.Printf("someFloats--->: %p\n", pool.someFloats)
-
-	if cap3 != cap(floats) {
-		panic("BOOM")
-	}
-
 	// Output: saved allocations1 true, saved allocations2 true, saved allocations3 true
 
 }
@@ -53,15 +47,16 @@ func hotSpot(pool Pool) (int, int, int) {
 	p := pool.pointerExample.Get()
 	p.SomeIDs = p.SomeIDs[:0]
 	p.SomeNames = p.SomeNames[:0]
-	defer pool.pointerExample.Put(p)
 
 	s := pool.example.Get()
-	s.SomeIDs = p.SomeIDs[:0]
-	s.SomeNames = p.SomeNames[:0]
-	defer pool.example.Put(s)
+	s.SomeIDs = s.SomeIDs[:0]
+	s.SomeNames = s.SomeNames[:0]
 
 	floats := pool.someFloats.Get()[:0]
+
 	defer func() {
+		pool.pointerExample.Put(p)
+		pool.example.Put(s)
 		pool.someFloats.Put(floats)
 	}()
 
