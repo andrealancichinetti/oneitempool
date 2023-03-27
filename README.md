@@ -24,7 +24,7 @@ If you are using a single thread,
 this simple struct will make sure that your code will get access to the data only once
 and will make updates convenient.
 
-```
+```go
 
 pool := New([]float64{})
 frenquentlyCalledFunction(pool)
