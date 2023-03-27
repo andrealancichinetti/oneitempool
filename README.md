@@ -53,3 +53,14 @@ func frenquentlyCalledFunction(pool *OneItemPool[[]float64]) {
 
 
 ```
+
+
+This is clearly more limited than sync.Pool, but if you need performance, it might be faster.
+Here is a (small and artificial) benchmark:
+
+```
+BenchmarkOneItemPool-8   	 2877622	       416.1 ns/op
+BenchmarkSyncPool-8      	  931642	      1285 ns/op
+```
+
+
