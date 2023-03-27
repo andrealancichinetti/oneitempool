@@ -1,0 +1,7 @@
+# Distribution / packaging
+var/
+
+
+# Mac files
+.DS_Store
+
