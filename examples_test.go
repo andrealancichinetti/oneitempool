@@ -54,6 +54,8 @@ func hotSpot(pool Pool) (int, int, int) {
 
 	floats := pool.someFloats.Get()[:0]
 
+	// defer pool.someFloats.Put(floats) would evaluate floats immediately,
+	// which we don't want.
 	defer func() {
 		pool.pointerExample.Put(p)
 		pool.example.Put(s)
