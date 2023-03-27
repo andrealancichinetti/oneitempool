@@ -88,12 +88,12 @@ func doSomethingElse(pool *OneItemPool[[]float64]) {
 	allocated = append(allocated, 0.1)
 	pool.Put(allocated)
 }
+```
 
 As a general rule, after using Put(), you should not hold any reference to the item, 
 because it might be changed later.
 
 
-```
 This is clearly more limited than sync.Pool, but if you need performance, it might be faster.
 Here is a (small and artificial) benchmark:
 
