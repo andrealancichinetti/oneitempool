@@ -5,13 +5,14 @@ OneItemPool is a very basic implementation of a pool to save memory allocations.
 It is NOT SAFE FOR CONCURRENT USE.
 
 Why having a pool with a single item?
+
 Say that you have a function that gets called many times and
 that requires some memory allocations.
 Instead of allocating the memory each time you call the function,
 you can use sync.Pool, right?
-
 Yes, but you get some overhead. Also, you might not want to
 lose the object if the GC runs.
+
 If that doesn't work for you, you can create your object
 before calling the function you want to optimise,
 and pass it there.
