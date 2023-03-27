@@ -37,9 +37,10 @@ func doSomething(allocated *[]float64) {
 }
 
 func doSomethingElse(allocated *[]float64) {
-	*allocated = append(*allocated[:0], 10.0)
+	*allocated = append((*allocated)[:0], 10.0)
 	// do something else
 }
+
 
 ```
 
