@@ -1,5 +1,7 @@
 package oneitempool
 
+import "fmt"
+
 type ExampleStruct struct {
 	SomeIDs   []int
 	SomeNames []string
@@ -19,9 +21,34 @@ func ExamplePool() {
 		someFloats:     New(make([]float64, 0, 1000)), // let's preallocate some
 	}
 	hotSpot(pool)
+	hotSpot(pool)
+	hotSpot(pool)
+	cap1, cap2, cap3 := hotSpot(pool)
+
+	p := pool.pointerExample.Get()
+	defer pool.pointerExample.Put(p)
+	fmt.Printf("saved allocations1 %v, ", cap1 == cap(p.SomeIDs))
+
+	s := pool.example.Get()
+	defer pool.example.Put(s)
+	fmt.Printf("saved allocations2 %v, ", cap2 == cap(s.SomeNames))
+
+	floats := pool.someFloats.Get()
+
+	defer pool.someFloats.Put(floats)
+	fmt.Printf("saved allocations3 %v", cap3 == cap(floats))
+
+	//fmt.Printf("someFloats--->: %p\n", pool.someFloats)
+
+	if cap3 != cap(floats) {
+		panic("BOOM")
+	}
+
+	// Output: saved allocations1 true, saved allocations2 true, saved allocations3 true
+
 }
 
-func hotSpot(pool Pool) {
+func hotSpot(pool Pool) (int, int, int) {
 
 	p := pool.pointerExample.Get()
 	p.SomeIDs = p.SomeIDs[:0]
@@ -34,7 +61,9 @@ func hotSpot(pool Pool) {
 	defer pool.example.Put(s)
 
 	floats := pool.someFloats.Get()[:0]
-	defer pool.someFloats.Put(floats)
+	defer func() {
+		pool.someFloats.Put(floats)
+	}()
 
 	for i := 0; i < 10000; i += 1 {
 		p.SomeIDs = append(p.SomeIDs, i)
@@ -46,4 +75,5 @@ func hotSpot(pool Pool) {
 		floats = append(floats, 0.1)
 	}
 
+	return cap(p.SomeIDs), cap(s.SomeNames), cap(floats)
 }

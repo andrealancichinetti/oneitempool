@@ -24,8 +24,8 @@ this simple struct will make sure that your code will only get access to the dat
 and will make updates convenient.
 */
 type OneItemPool[T any] struct {
-	gotIt bool
-	data  T
+	accessed bool
+	data     T
 }
 
 func New[T any](t T) *OneItemPool[T] {
@@ -33,14 +33,14 @@ func New[T any](t T) *OneItemPool[T] {
 }
 
 func (p *OneItemPool[T]) Get() T {
-	if p.gotIt {
+	if p.accessed {
 		panic("requesting data twice")
 	}
-	p.gotIt = true
+	p.accessed = true
 	return p.data
 }
 
 func (p *OneItemPool[T]) Put(t T) {
-	p.gotIt = false
+	p.accessed = false
 	p.data = t
 }
