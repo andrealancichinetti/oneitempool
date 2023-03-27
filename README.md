@@ -1,5 +1,4 @@
 # oneitempool
-A bare-bones free list for Go, not safe for concurrent use.
 
 OneItemPool is a very basic implementation of a pool to save memory allocations.
 It is NOT SAFE FOR CONCURRENT USE.
@@ -24,3 +23,33 @@ This works great, but I found two inconveniences:
 If you are using a single thread,
 this simple struct will make sure that your code will get access to the data only once
 and will make updates convenient.
+
+```
+
+pool := New([]float64{})
+frenquentlyCalledFunction(pool)
+frenquentlyCalledFunction(pool)
+frenquentlyCalledFunction(pool)
+frenquentlyCalledFunction(pool)
+
+floats := pool.Get()[:0]
+fmt.Printf("cap(floats) >= 1000? %v\n", cap(floats) >= 1000)
+pool.Put(floats)
+
+// Output: cap(floats) >= 1000? true
+
+
+func frenquentlyCalledFunction(pool *OneItemPool[[]float64]) {
+
+	floats := pool.Get()[:0]
+	// defer pool.Put(floats) would evaluate floats immediately, which we don't want.
+	defer func() {
+		pool.Put(floats)
+	}()
+	for i := 0; i < 1000; i += 1 {
+		floats = append(floats, 0.1)
+	}
+}
+
+
+```
