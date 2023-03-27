@@ -7,14 +7,14 @@ import (
 
 const sliceSize = 1000
 
-func BenchmarkFreelist(b *testing.B) {
-	freelist := New([]int{})
+func BenchmarkOneItemPool(b *testing.B) {
+	pool := New([]int{})
 	for i := 0; i < b.N; i++ {
-		data := freelist.Get()[:0]
+		data := pool.Get()[:0]
 		for x := 0; x < sliceSize; x += 1 {
 			data = append(data, x)
 		}
-		freelist.Put(data)
+		pool.Put(data)
 	}
 }
 
