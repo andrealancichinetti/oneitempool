@@ -7,21 +7,20 @@ Why having a pool with a single item?
 
 Say that you have a function that gets called many times and
 that requires some memory allocations.
+
 Instead of allocating the memory each time you call the function,
 you can use sync.Pool, right?
 Yes, but you get some overhead. Also, you might not want to
 lose the object if the GC runs.
 
-If that doesn't work for you, you can create your object
-before calling the function you want to optimise,
-and pass it there.
-This works great, but I found two inconveniences:
- 1. if you have a slice, you need to make sure to update it in the caller.
- 2. you end up with a shared mutable object, which needs special care:
-    you want to re-use the same object, but not in multiple places at the same time.
+The alternative is to allocate memory
+before calling the function you want to optimise, and pass the allocated variable into the function.
+This works great, but it has two inconveniences (which sync.Pool does not have).
+ 1. if you have a slice, you need to make sure to update it in the caller, or use a pointer
+ 2. you end up with a shared mutable object, and you need to make sure you are not changing it in multiple places.
 
-If you are using a single thread,
-this simple struct will make sure that your code will get access to the data only once
+If you are not using concurrency and you only need to get one object and then put it back,
+this simple struct will make sure that your code will get access to the data only one at a time
 and will make updates convenient.
 
 ```go
