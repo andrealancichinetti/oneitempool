@@ -67,8 +67,8 @@ Now we pass `pool` around and that is protected from accidental changes (`alloca
 ```go
 
 
-allocated := New([]float64{})
-doSomething(allocated)
+pool := New([]float64{})
+doSomething(pool)
 
 func doSomething(pool *OneItemPool[[]float64]) {
 
