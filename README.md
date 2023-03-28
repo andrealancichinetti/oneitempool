@@ -50,8 +50,8 @@ Here is how it works:
 
 ```go
 
-allocated := New([]float64{})
-doSomething(allocated)
+pool := New([]float64{})
+doSomething(pool)
 
 func doSomething(pool *OneItemPool[[]float64]) {
 	allocated := pool.Get()[:0]
