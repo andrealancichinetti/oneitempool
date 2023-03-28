@@ -9,7 +9,7 @@ Say that you have a function that gets called many times and
 that requires some memory allocations.
 
 Instead of allocating the memory each time you call the function,
-a standard solution might be to use sync.Pool.
+a standard solution might be to use `sync.Pool`.
 
 A more performant alternative is to allocate memory
 before calling the function you want to optimise,
@@ -44,7 +44,7 @@ func doSomethingElse(allocated *[]float64) {
 
 ```
 
-OneItemPool will not make the item available until we put it back.
+`OneItemPool` will not make the item available until we put it back.
 This will force you to be more careful with sharing the allocated item.
 Here is how it works:
 
@@ -62,7 +62,7 @@ func doSomething(pool *OneItemPool[[]float64]) {
 
 ```
 
-Now we pass pool around and that is protected from accidental changes (allocated is not, but we normally should pass pool, not allocated):
+Now we pass `pool` around and that is protected from accidental changes (`allocated is not`, but we should normally pass `pool`):
 
 ```go
 
@@ -90,11 +90,11 @@ func doSomethingElse(pool *OneItemPool[[]float64]) {
 }
 ```
 
-As a general rule, after using Put(), you should not hold any reference to the item, 
+As a general rule, after using `Put()`, you should not hold any reference to the item, 
 because it might be changed later.
 
 
-This is clearly more limited than sync.Pool, but if you need performance, it might be faster.
+This is clearly more limited than `sync.Pool`, but if you need performance, it might be faster.
 Here is a (small and artificial) benchmark:
 
 ```
