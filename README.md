@@ -62,7 +62,7 @@ func doSomething(pool *OneItemPool[[]float64]) {
 
 ```
 
-Now allocated is protected from accidental changes: 
+Now we pass pool around and that is protected from accidental changes (allocated is not, but we normally should pass pool, not allocated):
 
 ```go
 
